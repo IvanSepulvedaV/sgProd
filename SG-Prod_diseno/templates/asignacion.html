@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}Asignación de personal · SG-Prod{% endblock %}
+
+{% block extra_head %}
+<style>
+  .asg-card { margin-bottom: 1rem; }
+  .asg-cobertura { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem 1.25rem; margin-bottom: .75rem; }
+  .asg-cobertura strong { font: 700 1.6rem var(--sg-font-head); }
+  .asg-cobertura span { color: var(--sg-muted); }
+  .asg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+  .st { display: flex; flex-direction: column; gap: .9rem; background: var(--sg-card); border: 1px solid var(--sg-line);
+        border-left: 8px solid var(--sg-line); border-radius: var(--sg-radius); padding: 1rem 1.1rem; }
+  .st--ok { border-left-color: var(--sg-ok); } .st--warn { border-left-color: var(--sg-warn); } .st--bad { border-left-color: var(--sg-bad); }
+  .st-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+  .st-head h3 { margin: 0; }
+  .st-op { display: flex; align-items: center; gap: .75rem; }
+  .st-op strong { display: block; line-height: 1.2; }
+  .st-op small { color: var(--sg-muted); }
+  .st-niveles { display: grid; grid-template-columns: 1fr auto; gap: .35rem 1rem; align-items: center; color: var(--sg-muted); font-size: .95rem; }
+  .st .sg-btn { width: 100%; margin-top: auto; }
+  .asg-pie { margin-top: 1.25rem; display: flex; gap: .75rem; flex-wrap: wrap; }
+
+  .cand { display: flex; align-items: center; gap: .75rem; padding: .9rem 0; border-bottom: 1px solid var(--sg-line); }
+  .cand-info { flex: 1; min-width: 0; }
+  .cand-nombre { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+  .cand-tag { display: block; font-size: .9rem; color: var(--sg-muted); }
+  .cand-tag.ok { color: var(--sg-ok-fg); } .cand-tag.warn { color: var(--sg-warn-fg); }
+  .cand .sg-btn { min-height: 48px; padding: 0 1.1rem; font-size: 1rem; }
+    #sheet-list { list-style: none; margin: .5rem 0 0; padding: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sg-page-head">
+  <div>
+    <h1>Asignación de personal</h1>
+    <p id="fecha"></p>
+  </div>
+  <div class="sg-seg-group">
+    <div>
+      <span class="sg-seg-label" id="lbl-linea">Línea</span>
+      <div class="sg-seg" role="group" aria-labelledby="lbl-linea" data-seg>
+        <button type="button" aria-pressed="false">Línea 3</button>
+        <button type="button" aria-pressed="false">Línea 4</button>
+        <button type="button" aria-pressed="false">Línea 5</button>
+      </div>
+    </div>
+    <div>
+      <span class="sg-seg-label" id="lbl-turno">Turno</span>
+      <div class="sg-seg" role="group" aria-labelledby="lbl-turno" data-seg>
+        <button type="button" aria-pressed="false">Matutino</button>
+        <button type="button" aria-pressed="false">Vespertino</button>
+        <button type="button" aria-pressed="false">Nocturno</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="sg-card asg-card" aria-label="Resumen de cobertura">
+  <div class="asg-cobertura">
+    <strong id="res-titulo"></strong>
+    <span id="res-detalle"></span>
+  </div>
+  <div class="sg-progress" id="res-barra" aria-hidden="true"></div>
+</section>
+
+<section class="asg-grid" id="grid" aria-label="Estaciones de la línea"></section>
+
+<div class="asg-pie">
+  <button class="sg-btn" id="guardar" type="button">Guardar asignación</button>
+</div>
+
+<dialog class="sg-sheet" id="sheet" aria-labelledby="sheet-title">
+  <div class="sg-sheet__head">
+    <div>
+      <h2 id="sheet-title"></h2>
+      <p id="sheet-sub" style="color:var(--sg-muted);margin:.25rem 0 0"></p>
+    </div>
+    <button class="sg-close" id="sheet-cerrar" type="button" aria-label="Cerrar">✕</button>
+  </div>
+  <ul id="sheet-list"></ul>
+  <p id="sheet-quitar-wrap" style="margin-top:1rem" hidden>
+    <button class="sg-btn sg-btn--ghost" id="sheet-quitar" type="button">Dejar sin operador</button>
+  </p>
+</dialog>
+
+<div class="sg-toast" id="toast" role="status" hidden></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Datos de ejemplo. Mariana los reemplaza con los de la base de datos. */
+var NIVEL_MAX = 3;
+var estaciones = [
+  { id: 'corte',      nombre: 'Corte',      req: 3, op: 'ana'   },
+  { id: 'costura1',   nombre: 'Costura 1',  req: 2, op: 'luis'  },
+  { id: 'costura2',   nombre: 'Costura 2',  req: 3, op: 'carmen'},
+  { id: 'planchado',  nombre: 'Planchado',  req: 2, op: 'rosa'  },
+  { id: 'inspeccion', nombre: 'Inspección', req: 2, op: null    },
+  { id: 'empaque',    nombre: 'Empaque',    req: 1, op: 'jorge' }
+];
+var personas = {
+  ana:    { nombre: 'Ana Ramírez',   hab: { corte: 3, costura1: 2, inspeccion: 1 } },
+  luis:   { nombre: 'Luis Martínez', hab: { costura1: 2, costura2: 2, empaque: 2 } },
+  carmen: { nombre: 'Carmen Soto',   hab: { costura2: 1, costura1: 3, planchado: 1 } },
+  rosa:   { nombre: 'Rosa Díaz',     hab: { planchado: 3, empaque: 2, inspeccion: 2 } },
+  jorge:  { nombre: 'Jorge Pérez',   hab: { empaque: 2, inspeccion: 1, planchado: 1 } },
+  miguel: { nombre: 'Miguel Torres', hab: { inspeccion: 3, empaque: 2, corte: 1 } },
+  elena:  { nombre: 'Elena Vargas',  hab: { costura2: 3, costura1: 3, planchado: 2 } },
+  pablo:  { nombre: 'Pablo Núñez',   hab: { inspeccion: 2, planchado: 1 } },
+  sofia:  { nombre: 'Sofía Ibarra',  hab: { corte: 2, empaque: 1 } }
+};
+var ETIQUETA = { ok: 'Cubierta', warn: 'Requiere apoyo', bad: 'Sin cubrir' };
+
+var $ = function (id) { return document.getElementById(id); };
+var actual = null;
+
+function iniciales(n) { return n.split(' ').map(function (p) { return p.charAt(0); }).slice(0, 2).join(''); }
+function nivelDe(clave, estId) { return (personas[clave].hab[estId]) || 0; }
+function puntos(n) {
+  var h = '';
+  for (var i = 0; i < NIVEL_MAX; i++) h += '<i class="' + (i < n ? 'on' : '') + '"></i>';
+  return '<span class="sg-dots" role="img" aria-label="Nivel ' + n + ' de ' + NIVEL_MAX + '">' + h + '</span>';
+}
+function estadoDe(e) {
+  if (!e.op) return 'bad';
+  return nivelDe(e.op, e.id) >= e.req ? 'ok' : 'warn';
+}
+
+function pintar() {
+  var cont = { ok: 0, warn: 0, bad: 0 };
+  var html = estaciones.map(function (e) {
+    var est = estadoDe(e); cont[est]++;
+    var operador;
+    if (e.op) {
+      var lvl = nivelDe(e.op, e.id);
+      operador = '<span class="sg-avatar" aria-hidden="true">' + iniciales(personas[e.op].nombre) + '</span>' +
+                 '<div><strong>' + personas[e.op].nombre + '</strong><small>Nivel ' + lvl + ' en esta estación</small></div>';
+    } else {
+      operador = '<span class="sg-avatar sg-avatar--empty" aria-hidden="true">?</span>' +
+                 '<div><strong>Sin operador</strong><small>Nadie asignado todavía</small></div>';
+    }
+    var nivelOp = e.op ? puntos(nivelDe(e.op, e.id)) : puntos(0);
+    var boton = e.op
+      ? '<button class="sg-btn sg-btn--ghost" type="button" data-est="' + e.id + '">Cambiar operador</button>'
+      : '<button class="sg-btn sg-btn--accent" type="button" data-est="' + e.id + '">Asignar operador</button>';
+    return '<article class="st st--' + est + '">' +
+      '<div class="st-head"><h3>' + e.nombre + '</h3><span class="sg-badge sg-badge--' + est + '">' + ETIQUETA[est] + '</span></div>' +
+      '<div class="st-op">' + operador + '</div>' +
+      '<div class="st-niveles"><span>Nivel que pide la estación</span>' + puntos(e.req) +
+      '<span>Nivel del operador</span>' + nivelOp + '</div>' + boton + '</article>';
+  }).join('');
+  $('grid').innerHTML = html;
+
+  $('res-titulo').textContent = cont.ok + ' de ' + estaciones.length + ' estaciones cubiertas';
+  var partes = [];
+  if (cont.warn) partes.push(cont.warn + (cont.warn === 1 ? ' necesita apoyo' : ' necesitan apoyo'));
+  if (cont.bad) partes.push(cont.bad + (cont.bad === 1 ? ' sin operador' : ' sin operador'));
+  $('res-detalle').textContent = partes.length ? partes.join(', ') : 'Todo cubierto para este turno';
+  $('res-barra').innerHTML = estaciones.map(function (e) { return '<span class="is-' + estadoDe(e) + '" title="' + e.nombre + '"></span>'; }).join('');
+}
+
+function toast(msg) {
+  var t = $('toast'); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 2600);
+}
+
+function abrir(id) {
+  actual = estaciones.filter(function (e) { return e.id === id; })[0];
+  $('sheet-title').textContent = 'Asignar a ' + actual.nombre;
+  $('sheet-sub').textContent = 'Esta estación pide nivel ' + actual.req + '. Los mejores candidatos aparecen primero.';
+  var libres = Object.keys(personas).filter(function (k) {
+    return !estaciones.some(function (e) { return e.op === k; });
+  }).sort(function (a, b) { return nivelDe(b, id) - nivelDe(a, id); });
+
+  if (!libres.length) {
+    $('sheet-list').innerHTML = '<li class="cand">No hay operadores disponibles en este turno.</li>';
+  } else {
+    $('sheet-list').innerHTML = libres.map(function (k, i) {
+      var n = nivelDe(k, id), tag, clase;
+      if (n >= actual.req) { tag = 'Cumple el nivel'; clase = 'ok'; }
+      else if (n > 0) { tag = 'Nivel bajo: necesitaría apoyo'; clase = 'warn'; }
+      else { tag = 'Sin experiencia en esta estación'; clase = 'warn'; }
+      var rec = (i === 0 && n >= actual.req) ? '<span class="sg-badge sg-badge--ok">Recomendado</span>' : '';
+      return '<li class="cand"><span class="sg-avatar" aria-hidden="true">' + iniciales(personas[k].nombre) + '</span>' +
+        '<div class="cand-info"><div class="cand-nombre"><strong>' + personas[k].nombre + '</strong>' + rec + '</div>' +
+        '<span class="cand-tag ' + clase + '">' + tag + '</span></div>' + puntos(n) +
+        '<button class="sg-btn ' + (i === 0 && n >= actual.req ? 'sg-btn--accent' : 'sg-btn--ghost') + '" type="button" data-per="' + k + '">Asignar</button></li>';
+    }).join('');
+  }
+  $('sheet-quitar-wrap').hidden = !actual.op;
+  $('sheet').showModal();
+}
+
+$('grid').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button[data-est]'); if (b) abrir(b.getAttribute('data-est'));
+});
+$('sheet-list').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button[data-per]'); if (!b) return;
+  var k = b.getAttribute('data-per');
+  actual.op = k; pintar(); $('sheet').close();
+  toast(personas[k].nombre + ' asignada a ' + actual.nombre);
+});
+$('sheet-quitar').addEventListener('click', function () {
+  actual.op = null; pintar(); $('sheet').close(); toast('Se quitó el operador de ' + actual.nombre);
+});
+$('sheet-cerrar').addEventListener('click', function () { $('sheet').close(); });
+$('sheet').addEventListener('click', function (ev) { if (ev.target === $('sheet')) $('sheet').close(); });
+$('guardar').addEventListener('click', function () { toast('Asignación guardada (solo prueba, aún no se guarda en la base de datos)'); });
+
+document.querySelectorAll('[data-seg]').forEach(function (grupo) {
+  var botones = grupo.querySelectorAll('button');
+  botones[0].setAttribute('aria-pressed', 'true');
+  botones.forEach(function (b) {
+    b.addEventListener('click', function () {
+      botones.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+      b.setAttribute('aria-pressed', 'true');
+    });
+  });
+});
+
+var hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+$('fecha').textContent = hoy.charAt(0).toUpperCase() + hoy.slice(1);
+pintar();
+</script>
+{% endblock %}

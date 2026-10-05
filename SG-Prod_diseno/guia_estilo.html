@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SG-Prod · Guía de estilo</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>/* SG-Prod · theme.css · Sistema visual compartido (Módulo 1 y Módulo 2) */
+:root {
+  --sg-ink: #16222E;        /* texto y menú */
+  --sg-teal: #0E6478;       /* color principal */
+  --sg-teal-dark: #0A4A5A;
+  --sg-nav: #0A4A5A;        /* fondo de la barra superior */
+  --sg-primary: #0E6478;    /* fondo de botones principales */
+  --sg-primary-dark: #0A4A5A;
+  --sg-thread: #F2B705;     /* acento: acciones destacadas */
+  --sg-paper: #F2F5F5;      /* fondo de pantalla */
+  --sg-card: #FFFFFF;
+  --sg-line: #D3DBDD;
+  --sg-muted: #5B6B75;
+  --sg-ok: #1E8E4E;         /* aceptada */
+  --sg-warn: #C98A00;       /* retrabajo */
+  --sg-bad: #C8322B;        /* rechazada */
+  --sg-ok-bg: #E3F4EA; --sg-warn-bg: #FFF1CC; --sg-bad-bg: #FBE4E2;
+  --sg-ok-fg: #1E8E4E; --sg-warn-fg: #8A5F00; --sg-bad-fg: #C8322B; /* texto de etiquetas */
+  --sg-radius: 10px;
+  --sg-touch: 56px;         /* alto mínimo de botones en planta */
+  --sg-font-head: "Barlow Semi Condensed", "Arial Narrow", sans-serif;
+  --sg-font-body: "Barlow", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sg-ink: #E8EEF0; --sg-paper: #0F171D; --sg-card: #18232B; --sg-line: #2C3B45;
+    --sg-muted: #9AACB6; --sg-teal: #3FB0C8; --sg-teal-dark: #2A8CA3;
+    --sg-nav: #1F7E94; --sg-primary: #1A7A92; --sg-primary-dark: #146679;
+    --sg-ok-fg: #7EE0A6; --sg-warn-fg: #FFD066; --sg-bad-fg: #FF9A92;
+    --sg-ok-bg: #12301F; --sg-warn-bg: #3A2D06; --sg-bad-bg: #3B1512;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--sg-paper); color: var(--sg-ink);
+  font: 400 18px/1.5 var(--sg-font-body); }
+h1, h2, h3 { font-family: var(--sg-font-head); font-weight: 700; line-height: 1.15; margin: 0 0 .5em; }
+h1 { font-size: 2rem; } h2 { font-size: 1.5rem; } h3 { font-size: 1.2rem; }
+
+/* Barra superior */
+.sg-nav { display: flex; align-items: center; gap: 1rem; padding: .75rem 1.25rem;
+  background: var(--sg-nav); color: #fff; }
+.sg-nav .sg-logo { font: 700 1.5rem var(--sg-font-head); letter-spacing: .02em; }
+.sg-nav .sg-logo b { color: var(--sg-thread); }
+.sg-nav a { color: #fff; text-decoration: none; padding: .6rem .9rem; border-radius: 8px; }
+.sg-nav a:hover, .sg-nav a[aria-current="page"] { background: rgba(255,255,255,.16); }
+.sg-nav a:focus-visible, .sg-btn:focus-visible { outline: 3px solid var(--sg-thread); outline-offset: 2px; }
+.sg-main { max-width: 1100px; margin: 0 auto; padding: 1.25rem; }
+
+/* Tarjetas */
+.sg-card { background: var(--sg-card); border: 1px solid var(--sg-line);
+  border-radius: var(--sg-radius); padding: 1.1rem 1.25rem; }
+
+/* Botones (tamaño para uso con guantes / tableta) */
+.sg-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  min-height: var(--sg-touch); min-width: var(--sg-touch); padding: 0 1.5rem;
+  border: 2px solid transparent; border-radius: var(--sg-radius); cursor: pointer;
+  font: 600 1.1rem var(--sg-font-head); background: var(--sg-primary); color: #fff; }
+.sg-btn:hover { background: var(--sg-primary-dark); }
+.sg-btn--accent { background: var(--sg-thread); color: #16222E; }
+.sg-btn--ghost { background: transparent; color: var(--sg-teal); border-color: var(--sg-teal); }
+
+/* Captura rápida de piezas (Módulo 2) */
+.sg-capture { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+.sg-capture .sg-btn { min-height: 96px; flex-direction: column; font-size: 1.3rem; }
+.sg-btn--ok { background: var(--sg-ok); } .sg-btn--warn { background: var(--sg-warn); } .sg-btn--bad { background: var(--sg-bad); }
+
+/* Estados (siempre con texto, no solo color) */
+.sg-badge { display: inline-block; padding: .15rem .7rem; border-radius: 999px; font: 600 .95rem var(--sg-font-head); }
+.sg-badge--ok { background: var(--sg-ok-bg); color: var(--sg-ok-fg); }
+.sg-badge--warn { background: var(--sg-warn-bg); color: var(--sg-warn-fg); }
+.sg-badge--bad { background: var(--sg-bad-bg); color: var(--sg-bad-fg); }
+
+/* Formularios y tablas */
+.sg-field { display: block; margin-bottom: 1rem; font-weight: 600; }
+.sg-field input, .sg-field select { display: block; width: 100%; min-height: 48px; margin-top: .3rem;
+  padding: 0 .8rem; font: 400 1rem var(--sg-font-body); border: 2px solid var(--sg-line);
+  border-radius: 8px; background: var(--sg-card); color: var(--sg-ink); }
+.sg-field input:focus, .sg-field select:focus { outline: none; border-color: var(--sg-teal); }
+.sg-table { width: 100%; border-collapse: collapse; background: var(--sg-card); }
+.sg-table th { text-align: left; font: 600 1rem var(--sg-font-head); background: var(--sg-paper); }
+.sg-table th, .sg-table td { padding: .8rem 1rem; border-bottom: 1px solid var(--sg-line); }
+.sg-scroll { overflow-x: auto; }
+
+@media (max-width: 640px) { .sg-capture { grid-template-columns: 1fr; } .sg-nav { flex-wrap: wrap; } }
+
+/* ---------- Componentes v2 ---------- */
+.sg-page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+.sg-page-head h1 { margin: 0; }
+.sg-page-head p { margin: .25rem 0 0; color: var(--sg-muted); }
+
+/* Selector por botones (reemplaza a los menús desplegables) */
+.sg-seg-group { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; }
+.sg-seg-label { display: block; margin-bottom: .35rem; font: 600 .95rem var(--sg-font-head); color: var(--sg-muted); }
+.sg-seg { display: inline-flex; background: var(--sg-paper); border: 2px solid var(--sg-line); border-radius: 12px; padding: 3px; gap: 3px; }
+.sg-seg button { min-height: 46px; padding: 0 1.1rem; border: 0; border-radius: 9px; background: transparent;
+  color: var(--sg-muted); font: 600 1.05rem var(--sg-font-head); cursor: pointer; }
+.sg-seg button:hover { color: var(--sg-ink); }
+.sg-seg button[aria-pressed="true"] { background: var(--sg-primary); color: #fff; }
+.sg-seg button:focus-visible { outline: 3px solid var(--sg-thread); outline-offset: 1px; }
+
+/* Barra de cobertura */
+.sg-progress { display: flex; gap: 4px; height: 14px; }
+.sg-progress span { flex: 1; border-radius: 4px; background: var(--sg-line); }
+.sg-progress .is-ok { background: var(--sg-ok); } .sg-progress .is-warn { background: var(--sg-warn); } .sg-progress .is-bad { background: var(--sg-bad); }
+
+/* Avatar con iniciales y puntos de nivel */
+.sg-avatar { display: inline-grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%;
+  background: var(--sg-primary); color: #fff; font: 700 1rem var(--sg-font-head); }
+.sg-avatar--empty { background: transparent; color: var(--sg-muted); border: 2px dashed var(--sg-muted); }
+.sg-dots { display: inline-flex; gap: 4px; vertical-align: middle; }
+.sg-dots i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--sg-muted); }
+.sg-dots i.on { background: var(--sg-thread); border-color: var(--sg-thread); }
+
+/* Panel lateral (en celular sube desde abajo) */
+dialog.sg-sheet { margin: 0 0 0 auto; width: min(440px, 100%); height: 100%; max-height: none; padding: 1.25rem;
+  border: 0; background: var(--sg-card); color: var(--sg-ink); overflow-y: auto; }
+dialog.sg-sheet::backdrop { background: rgba(8, 16, 22, .65); }
+.sg-sheet__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.sg-sheet__head h2 { margin: 0; }
+.sg-close { flex: none; width: 48px; height: 48px; border: 2px solid var(--sg-line); border-radius: 50%;
+  background: transparent; color: var(--sg-ink); font-size: 1.2rem; cursor: pointer; }
+.sg-close:focus-visible { outline: 3px solid var(--sg-thread); }
+@media (max-width: 640px) {
+  dialog.sg-sheet { margin: auto 0 0; width: 100%; height: auto; max-height: 88%; border-radius: 18px 18px 0 0; }
+}
+
+/* Aviso breve */
+.sg-toast { position: fixed; left: 50%; bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  z-index: 50; max-width: calc(100% - 2rem); padding: .85rem 1.25rem; border-radius: var(--sg-radius);
+  background: var(--sg-ink); color: var(--sg-paper); font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+.sg-toast[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+:root { box-sizing: border-box; padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); }
+html, body { background: var(--sg-paper); }
+.g-sec { margin: 2rem 0; } .g-sec > p { color: var(--sg-muted); margin-top: 0; }
+.g-sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: .75rem; }
+.g-sw div { border-radius: 10px; overflow: hidden; border: 1px solid var(--sg-line); background: var(--sg-card); font-size: .9rem; }
+.g-sw i { display: block; height: 64px; } .g-sw span { display: block; padding: .5rem .7rem; }
+.g-sw b { display: block; font-family: var(--sg-font-head); }
+.g-row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+.g-type h1, .g-type h2, .g-type h3, .g-type p { margin-bottom: .4rem; }
+code { background: var(--sg-line); padding: .1rem .4rem; border-radius: 4px; font-size: .9em; }
+</style></head><body>
+<nav class="sg-nav"><span class="sg-logo">SG<b>-Prod</b></span><a href="#" aria-current="page">Asignación</a><a href="#">Captura de calidad</a><a href="#">Dashboard</a></nav>
+<main class="sg-main">
+<h1>Guía de estilo SG-Prod</h1>
+<p>Sistema visual compartido por el Módulo 1 (Asignación) y el Módulo 2 (Calidad y KPIs). Pensado para jefes de línea con tableta o celular, en piso de planta.</p>
+
+<section class="g-sec"><h2>Colores</h2><p>Azul petróleo para la marca, amarillo hilo para la acción principal. Verde, ámbar y rojo se reservan solo para calidad.</p>
+<div class="g-sw">
+<div><i style="background:#16222E"></i><span><b>Tinta</b>#16222E</span></div>
+<div><i style="background:#0E6478"></i><span><b>Petróleo</b>#0E6478</span></div>
+<div><i style="background:#0A4A5A"></i><span><b>Petróleo oscuro</b>#0A4A5A</span></div>
+<div><i style="background:#F2B705"></i><span><b>Hilo</b>#F2B705</span></div>
+<div><i style="background:#F2F5F5"></i><span><b>Papel</b>#F2F5F5</span></div>
+<div><i style="background:#1E8E4E"></i><span><b>Aceptada</b>#1E8E4E</span></div>
+<div><i style="background:#C98A00"></i><span><b>Retrabajo</b>#C98A00</span></div>
+<div><i style="background:#C8322B"></i><span><b>Rechazada</b>#C8322B</span></div>
+</div></section>
+
+<section class="g-sec g-type"><h2>Tipografía</h2><p>Barlow Semi Condensed para títulos y botones (aspecto de señalética industrial); Barlow para texto. Base de 18 px para leerse a distancia.</p>
+<div class="sg-card"><h1>Línea 3 · Turno matutino</h1><h2>Asignación de personal</h2><h3>Estaciones sin cubrir</h3><p>Texto de cuerpo: selecciona una estación para ver quién tiene la habilidad requerida.</p></div></section>
+
+<section class="g-sec"><h2>Botones</h2><p>Mínimo 56 px de alto para usarse con guantes.</p>
+<div class="g-row"><button class="sg-btn">Guardar</button><button class="sg-btn sg-btn--accent">Asignar a estación</button><button class="sg-btn sg-btn--ghost">Cancelar</button></div></section>
+
+<section class="g-sec"><h2>Captura rápida de piezas (Módulo 2)</h2><p>Un toque por pieza. Cada botón lleva color y texto, nunca solo color.</p>
+<div class="sg-capture"><button class="sg-btn sg-btn--ok">Aceptada</button><button class="sg-btn sg-btn--warn">Retrabajo</button><button class="sg-btn sg-btn--bad">Rechazada</button></div></section>
+
+<section class="g-sec"><h2>Pantalla de asignación (Módulo 1)</h2>
+<div class="sg-card"><label class="sg-field">Línea de producción<select><option>Línea 3</option><option>Línea 4</option></select></label>
+<div class="sg-scroll"><table class="sg-table"><thead><tr><th>Estación</th><th>Operador</th><th>Habilidad</th><th>Estado</th></tr></thead><tbody>
+<tr><td>Corte</td><td>Ana R.</td><td>Nivel 3</td><td><span class="sg-badge sg-badge--ok">Cubierta</span></td></tr>
+<tr><td>Costura</td><td>Luis M.</td><td>Nivel 1</td><td><span class="sg-badge sg-badge--warn">Requiere apoyo</span></td></tr>
+<tr><td>Inspección</td><td>Sin asignar</td><td>Nivel 2</td><td><span class="sg-badge sg-badge--bad">Sin cubrir</span></td></tr>
+</tbody></table></div></div></section>
+
+<section class="g-sec"><h2>Reglas para todo el equipo</h2>
+<div class="sg-card"><ul>
+<li>Usar siempre las variables de <code>theme.css</code>, no colores sueltos.</li>
+<li>Textos en español, con verbos claros: "Guardar", "Asignar", "Registrar pieza".</li>
+<li>Cada estado lleva texto además de color.</li>
+<li>Módulo 1 y Módulo 2 extienden <code>base.html</code> y reutilizan <code>sg-card</code>, <code>sg-btn</code>, <code>sg-badge</code> y <code>sg-table</code>.</li></ul></div></section>
+</main></body></html>

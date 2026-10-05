@@ -1,0 +1,40 @@
+SG-Prod · Paquete de diseño (UI/UX)
+Responsable: Martha
+
+QUÉ INCLUYE
+- templates/base.html ........ Plantilla base con menú. Todas las pantallas la extienden.
+- static/css/theme.css ....... Colores, tipografía y componentes compartidos.
+- templates/asignacion.html .. Pantalla de asignación de personal (Módulo 1), con datos de ejemplo.
+- guia_estilo.html ........... Guía visual (ábrela con doble clic en el navegador).
+- vista_previa_asignacion.html  La pantalla de asignación funcionando, sin instalar nada.
+
+CÓMO USARLO EN SU PROYECTO DJANGO
+1. Copien theme.css a  static/css/  y base.html a  templates/  de su proyecto.
+2. En settings.py:
+     TEMPLATES -> 'DIRS': [BASE_DIR / 'templates'],
+     STATICFILES_DIRS = [BASE_DIR / 'static']
+3. Cada pantalla nueva empieza así:
+     {% extends "base.html" %}
+     {% block title %}Mi pantalla · SG-Prod{% endblock %}
+     {% block content %} ... {% endblock %}
+4. El menú usa estos nombres de URL (deben existir en urls.py):
+     asignacion, captura, dashboard
+
+CLASES DISPONIBLES (theme.css)
+- Tarjeta: sg-card          - Tabla: sg-table (dentro de sg-scroll)
+- Botones: sg-btn, sg-btn--accent, sg-btn--ghost
+- Captura de piezas: sg-capture con sg-btn--ok / --warn / --bad
+- Estados: sg-badge--ok / --warn / --bad (siempre con texto, no solo color)
+- Formularios: sg-field
+- Selector por botones: sg-seg   - Avatar: sg-avatar   - Nivel: sg-dots
+- Panel lateral: dialog.sg-sheet   - Aviso: sg-toast   - Barra: sg-progress
+
+REGLAS PARA QUE TODO SE VEA IGUAL
+- Usen siempre las variables de theme.css (por ejemplo var(--sg-teal)), no colores sueltos.
+- Verde / amarillo / rojo se reservan solo para calidad y estados.
+- Botones de mínimo 56 px (se usan con guantes y en tableta).
+- Textos en español y con verbos claros: Guardar, Asignar, Registrar pieza.
+
+PARA CONECTAR DATOS REALES (Mariana)
+En asignacion.html los datos están en el script (variables estaciones y personas).
+Hay que reemplazarlos por los de la base de datos.

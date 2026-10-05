@@ -1,0 +1,359 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SG-Prod · Pantalla de asignación</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>/* SG-Prod · theme.css · Sistema visual compartido (Módulo 1 y Módulo 2) */
+:root {
+  --sg-ink: #16222E;        /* texto y menú */
+  --sg-teal: #0E6478;       /* color principal */
+  --sg-teal-dark: #0A4A5A;
+  --sg-nav: #0A4A5A;        /* fondo de la barra superior */
+  --sg-primary: #0E6478;    /* fondo de botones principales */
+  --sg-primary-dark: #0A4A5A;
+  --sg-thread: #F2B705;     /* acento: acciones destacadas */
+  --sg-paper: #F2F5F5;      /* fondo de pantalla */
+  --sg-card: #FFFFFF;
+  --sg-line: #D3DBDD;
+  --sg-muted: #5B6B75;
+  --sg-ok: #1E8E4E;         /* aceptada */
+  --sg-warn: #C98A00;       /* retrabajo */
+  --sg-bad: #C8322B;        /* rechazada */
+  --sg-ok-bg: #E3F4EA; --sg-warn-bg: #FFF1CC; --sg-bad-bg: #FBE4E2;
+  --sg-ok-fg: #1E8E4E; --sg-warn-fg: #8A5F00; --sg-bad-fg: #C8322B; /* texto de etiquetas */
+  --sg-radius: 10px;
+  --sg-touch: 56px;         /* alto mínimo de botones en planta */
+  --sg-font-head: "Barlow Semi Condensed", "Arial Narrow", sans-serif;
+  --sg-font-body: "Barlow", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sg-ink: #E8EEF0; --sg-paper: #0F171D; --sg-card: #18232B; --sg-line: #2C3B45;
+    --sg-muted: #9AACB6; --sg-teal: #3FB0C8; --sg-teal-dark: #2A8CA3;
+    --sg-nav: #1F7E94; --sg-primary: #1A7A92; --sg-primary-dark: #146679;
+    --sg-ok-fg: #7EE0A6; --sg-warn-fg: #FFD066; --sg-bad-fg: #FF9A92;
+    --sg-ok-bg: #12301F; --sg-warn-bg: #3A2D06; --sg-bad-bg: #3B1512;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--sg-paper); color: var(--sg-ink);
+  font: 400 18px/1.5 var(--sg-font-body); }
+h1, h2, h3 { font-family: var(--sg-font-head); font-weight: 700; line-height: 1.15; margin: 0 0 .5em; }
+h1 { font-size: 2rem; } h2 { font-size: 1.5rem; } h3 { font-size: 1.2rem; }
+
+/* Barra superior */
+.sg-nav { display: flex; align-items: center; gap: 1rem; padding: .75rem 1.25rem;
+  background: var(--sg-nav); color: #fff; }
+.sg-nav .sg-logo { font: 700 1.5rem var(--sg-font-head); letter-spacing: .02em; }
+.sg-nav .sg-logo b { color: var(--sg-thread); }
+.sg-nav a { color: #fff; text-decoration: none; padding: .6rem .9rem; border-radius: 8px; }
+.sg-nav a:hover, .sg-nav a[aria-current="page"] { background: rgba(255,255,255,.16); }
+.sg-nav a:focus-visible, .sg-btn:focus-visible { outline: 3px solid var(--sg-thread); outline-offset: 2px; }
+.sg-main { max-width: 1100px; margin: 0 auto; padding: 1.25rem; }
+
+/* Tarjetas */
+.sg-card { background: var(--sg-card); border: 1px solid var(--sg-line);
+  border-radius: var(--sg-radius); padding: 1.1rem 1.25rem; }
+
+/* Botones (tamaño para uso con guantes / tableta) */
+.sg-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  min-height: var(--sg-touch); min-width: var(--sg-touch); padding: 0 1.5rem;
+  border: 2px solid transparent; border-radius: var(--sg-radius); cursor: pointer;
+  font: 600 1.1rem var(--sg-font-head); background: var(--sg-primary); color: #fff; }
+.sg-btn:hover { background: var(--sg-primary-dark); }
+.sg-btn--accent { background: var(--sg-thread); color: #16222E; }
+.sg-btn--ghost { background: transparent; color: var(--sg-teal); border-color: var(--sg-teal); }
+
+/* Captura rápida de piezas (Módulo 2) */
+.sg-capture { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+.sg-capture .sg-btn { min-height: 96px; flex-direction: column; font-size: 1.3rem; }
+.sg-btn--ok { background: var(--sg-ok); } .sg-btn--warn { background: var(--sg-warn); } .sg-btn--bad { background: var(--sg-bad); }
+
+/* Estados (siempre con texto, no solo color) */
+.sg-badge { display: inline-block; padding: .15rem .7rem; border-radius: 999px; font: 600 .95rem var(--sg-font-head); }
+.sg-badge--ok { background: var(--sg-ok-bg); color: var(--sg-ok-fg); }
+.sg-badge--warn { background: var(--sg-warn-bg); color: var(--sg-warn-fg); }
+.sg-badge--bad { background: var(--sg-bad-bg); color: var(--sg-bad-fg); }
+
+/* Formularios y tablas */
+.sg-field { display: block; margin-bottom: 1rem; font-weight: 600; }
+.sg-field input, .sg-field select { display: block; width: 100%; min-height: 48px; margin-top: .3rem;
+  padding: 0 .8rem; font: 400 1rem var(--sg-font-body); border: 2px solid var(--sg-line);
+  border-radius: 8px; background: var(--sg-card); color: var(--sg-ink); }
+.sg-field input:focus, .sg-field select:focus { outline: none; border-color: var(--sg-teal); }
+.sg-table { width: 100%; border-collapse: collapse; background: var(--sg-card); }
+.sg-table th { text-align: left; font: 600 1rem var(--sg-font-head); background: var(--sg-paper); }
+.sg-table th, .sg-table td { padding: .8rem 1rem; border-bottom: 1px solid var(--sg-line); }
+.sg-scroll { overflow-x: auto; }
+
+@media (max-width: 640px) { .sg-capture { grid-template-columns: 1fr; } .sg-nav { flex-wrap: wrap; } }
+
+/* ---------- Componentes v2 ---------- */
+.sg-page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+.sg-page-head h1 { margin: 0; }
+.sg-page-head p { margin: .25rem 0 0; color: var(--sg-muted); }
+
+/* Selector por botones (reemplaza a los menús desplegables) */
+.sg-seg-group { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; }
+.sg-seg-label { display: block; margin-bottom: .35rem; font: 600 .95rem var(--sg-font-head); color: var(--sg-muted); }
+.sg-seg { display: inline-flex; background: var(--sg-paper); border: 2px solid var(--sg-line); border-radius: 12px; padding: 3px; gap: 3px; }
+.sg-seg button { min-height: 46px; padding: 0 1.1rem; border: 0; border-radius: 9px; background: transparent;
+  color: var(--sg-muted); font: 600 1.05rem var(--sg-font-head); cursor: pointer; }
+.sg-seg button:hover { color: var(--sg-ink); }
+.sg-seg button[aria-pressed="true"] { background: var(--sg-primary); color: #fff; }
+.sg-seg button:focus-visible { outline: 3px solid var(--sg-thread); outline-offset: 1px; }
+
+/* Barra de cobertura */
+.sg-progress { display: flex; gap: 4px; height: 14px; }
+.sg-progress span { flex: 1; border-radius: 4px; background: var(--sg-line); }
+.sg-progress .is-ok { background: var(--sg-ok); } .sg-progress .is-warn { background: var(--sg-warn); } .sg-progress .is-bad { background: var(--sg-bad); }
+
+/* Avatar con iniciales y puntos de nivel */
+.sg-avatar { display: inline-grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%;
+  background: var(--sg-primary); color: #fff; font: 700 1rem var(--sg-font-head); }
+.sg-avatar--empty { background: transparent; color: var(--sg-muted); border: 2px dashed var(--sg-muted); }
+.sg-dots { display: inline-flex; gap: 4px; vertical-align: middle; }
+.sg-dots i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--sg-muted); }
+.sg-dots i.on { background: var(--sg-thread); border-color: var(--sg-thread); }
+
+/* Panel lateral (en celular sube desde abajo) */
+dialog.sg-sheet { margin: 0 0 0 auto; width: min(440px, 100%); height: 100%; max-height: none; padding: 1.25rem;
+  border: 0; background: var(--sg-card); color: var(--sg-ink); overflow-y: auto; }
+dialog.sg-sheet::backdrop { background: rgba(8, 16, 22, .65); }
+.sg-sheet__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.sg-sheet__head h2 { margin: 0; }
+.sg-close { flex: none; width: 48px; height: 48px; border: 2px solid var(--sg-line); border-radius: 50%;
+  background: transparent; color: var(--sg-ink); font-size: 1.2rem; cursor: pointer; }
+.sg-close:focus-visible { outline: 3px solid var(--sg-thread); }
+@media (max-width: 640px) {
+  dialog.sg-sheet { margin: auto 0 0; width: 100%; height: auto; max-height: 88%; border-radius: 18px 18px 0 0; }
+}
+
+/* Aviso breve */
+.sg-toast { position: fixed; left: 50%; bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  z-index: 50; max-width: calc(100% - 2rem); padding: .85rem 1.25rem; border-radius: var(--sg-radius);
+  background: var(--sg-ink); color: var(--sg-paper); font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+.sg-toast[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+:root { padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); }</style>
+
+<style>
+  .asg-card { margin-bottom: 1rem; }
+  .asg-cobertura { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem 1.25rem; margin-bottom: .75rem; }
+  .asg-cobertura strong { font: 700 1.6rem var(--sg-font-head); }
+  .asg-cobertura span { color: var(--sg-muted); }
+  .asg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+  .st { display: flex; flex-direction: column; gap: .9rem; background: var(--sg-card); border: 1px solid var(--sg-line);
+        border-left: 8px solid var(--sg-line); border-radius: var(--sg-radius); padding: 1rem 1.1rem; }
+  .st--ok { border-left-color: var(--sg-ok); } .st--warn { border-left-color: var(--sg-warn); } .st--bad { border-left-color: var(--sg-bad); }
+  .st-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+  .st-head h3 { margin: 0; }
+  .st-op { display: flex; align-items: center; gap: .75rem; }
+  .st-op strong { display: block; line-height: 1.2; }
+  .st-op small { color: var(--sg-muted); }
+  .st-niveles { display: grid; grid-template-columns: 1fr auto; gap: .35rem 1rem; align-items: center; color: var(--sg-muted); font-size: .95rem; }
+  .st .sg-btn { width: 100%; margin-top: auto; }
+  .asg-pie { margin-top: 1.25rem; display: flex; gap: .75rem; flex-wrap: wrap; }
+
+  .cand { display: flex; align-items: center; gap: .75rem; padding: .9rem 0; border-bottom: 1px solid var(--sg-line); }
+  .cand-info { flex: 1; min-width: 0; }
+  .cand-nombre { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+  .cand-tag { display: block; font-size: .9rem; color: var(--sg-muted); }
+  .cand-tag.ok { color: var(--sg-ok-fg); } .cand-tag.warn { color: var(--sg-warn-fg); }
+  .cand .sg-btn { min-height: 48px; padding: 0 1.1rem; font-size: 1rem; }
+    #sheet-list { list-style: none; margin: .5rem 0 0; padding: 0; }
+</style>
+</head><body>
+<nav class="sg-nav" aria-label="Principal"><span class="sg-logo">SG<b>-Prod</b></span><a href="#" aria-current="page">Asignación</a><a href="#">Captura de calidad</a><a href="#">Dashboard</a></nav>
+<main class="sg-main">
+<div class="sg-page-head">
+  <div>
+    <h1>Asignación de personal</h1>
+    <p id="fecha"></p>
+  </div>
+  <div class="sg-seg-group">
+    <div>
+      <span class="sg-seg-label" id="lbl-linea">Línea</span>
+      <div class="sg-seg" role="group" aria-labelledby="lbl-linea" data-seg>
+        <button type="button" aria-pressed="false">Línea 3</button>
+        <button type="button" aria-pressed="false">Línea 4</button>
+        <button type="button" aria-pressed="false">Línea 5</button>
+      </div>
+    </div>
+    <div>
+      <span class="sg-seg-label" id="lbl-turno">Turno</span>
+      <div class="sg-seg" role="group" aria-labelledby="lbl-turno" data-seg>
+        <button type="button" aria-pressed="false">Matutino</button>
+        <button type="button" aria-pressed="false">Vespertino</button>
+        <button type="button" aria-pressed="false">Nocturno</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="sg-card asg-card" aria-label="Resumen de cobertura">
+  <div class="asg-cobertura">
+    <strong id="res-titulo"></strong>
+    <span id="res-detalle"></span>
+  </div>
+  <div class="sg-progress" id="res-barra" aria-hidden="true"></div>
+</section>
+
+<section class="asg-grid" id="grid" aria-label="Estaciones de la línea"></section>
+
+<div class="asg-pie">
+  <button class="sg-btn" id="guardar" type="button">Guardar asignación</button>
+</div>
+
+<dialog class="sg-sheet" id="sheet" aria-labelledby="sheet-title">
+  <div class="sg-sheet__head">
+    <div>
+      <h2 id="sheet-title"></h2>
+      <p id="sheet-sub" style="color:var(--sg-muted);margin:.25rem 0 0"></p>
+    </div>
+    <button class="sg-close" id="sheet-cerrar" type="button" aria-label="Cerrar">✕</button>
+  </div>
+  <ul id="sheet-list"></ul>
+  <p id="sheet-quitar-wrap" style="margin-top:1rem" hidden>
+    <button class="sg-btn sg-btn--ghost" id="sheet-quitar" type="button">Dejar sin operador</button>
+  </p>
+</dialog>
+
+<div class="sg-toast" id="toast" role="status" hidden></div>
+</main>
+<script>
+/* Datos de ejemplo. Mariana los reemplaza con los de la base de datos. */
+var NIVEL_MAX = 3;
+var estaciones = [
+  { id: 'corte',      nombre: 'Corte',      req: 3, op: 'ana'   },
+  { id: 'costura1',   nombre: 'Costura 1',  req: 2, op: 'luis'  },
+  { id: 'costura2',   nombre: 'Costura 2',  req: 3, op: 'carmen'},
+  { id: 'planchado',  nombre: 'Planchado',  req: 2, op: 'rosa'  },
+  { id: 'inspeccion', nombre: 'Inspección', req: 2, op: null    },
+  { id: 'empaque',    nombre: 'Empaque',    req: 1, op: 'jorge' }
+];
+var personas = {
+  ana:    { nombre: 'Ana Ramírez',   hab: { corte: 3, costura1: 2, inspeccion: 1 } },
+  luis:   { nombre: 'Luis Martínez', hab: { costura1: 2, costura2: 2, empaque: 2 } },
+  carmen: { nombre: 'Carmen Soto',   hab: { costura2: 1, costura1: 3, planchado: 1 } },
+  rosa:   { nombre: 'Rosa Díaz',     hab: { planchado: 3, empaque: 2, inspeccion: 2 } },
+  jorge:  { nombre: 'Jorge Pérez',   hab: { empaque: 2, inspeccion: 1, planchado: 1 } },
+  miguel: { nombre: 'Miguel Torres', hab: { inspeccion: 3, empaque: 2, corte: 1 } },
+  elena:  { nombre: 'Elena Vargas',  hab: { costura2: 3, costura1: 3, planchado: 2 } },
+  pablo:  { nombre: 'Pablo Núñez',   hab: { inspeccion: 2, planchado: 1 } },
+  sofia:  { nombre: 'Sofía Ibarra',  hab: { corte: 2, empaque: 1 } }
+};
+var ETIQUETA = { ok: 'Cubierta', warn: 'Requiere apoyo', bad: 'Sin cubrir' };
+
+var $ = function (id) { return document.getElementById(id); };
+var actual = null;
+
+function iniciales(n) { return n.split(' ').map(function (p) { return p.charAt(0); }).slice(0, 2).join(''); }
+function nivelDe(clave, estId) { return (personas[clave].hab[estId]) || 0; }
+function puntos(n) {
+  var h = '';
+  for (var i = 0; i < NIVEL_MAX; i++) h += '<i class="' + (i < n ? 'on' : '') + '"></i>';
+  return '<span class="sg-dots" role="img" aria-label="Nivel ' + n + ' de ' + NIVEL_MAX + '">' + h + '</span>';
+}
+function estadoDe(e) {
+  if (!e.op) return 'bad';
+  return nivelDe(e.op, e.id) >= e.req ? 'ok' : 'warn';
+}
+
+function pintar() {
+  var cont = { ok: 0, warn: 0, bad: 0 };
+  var html = estaciones.map(function (e) {
+    var est = estadoDe(e); cont[est]++;
+    var operador;
+    if (e.op) {
+      var lvl = nivelDe(e.op, e.id);
+      operador = '<span class="sg-avatar" aria-hidden="true">' + iniciales(personas[e.op].nombre) + '</span>' +
+                 '<div><strong>' + personas[e.op].nombre + '</strong><small>Nivel ' + lvl + ' en esta estación</small></div>';
+    } else {
+      operador = '<span class="sg-avatar sg-avatar--empty" aria-hidden="true">?</span>' +
+                 '<div><strong>Sin operador</strong><small>Nadie asignado todavía</small></div>';
+    }
+    var nivelOp = e.op ? puntos(nivelDe(e.op, e.id)) : puntos(0);
+    var boton = e.op
+      ? '<button class="sg-btn sg-btn--ghost" type="button" data-est="' + e.id + '">Cambiar operador</button>'
+      : '<button class="sg-btn sg-btn--accent" type="button" data-est="' + e.id + '">Asignar operador</button>';
+    return '<article class="st st--' + est + '">' +
+      '<div class="st-head"><h3>' + e.nombre + '</h3><span class="sg-badge sg-badge--' + est + '">' + ETIQUETA[est] + '</span></div>' +
+      '<div class="st-op">' + operador + '</div>' +
+      '<div class="st-niveles"><span>Nivel que pide la estación</span>' + puntos(e.req) +
+      '<span>Nivel del operador</span>' + nivelOp + '</div>' + boton + '</article>';
+  }).join('');
+  $('grid').innerHTML = html;
+
+  $('res-titulo').textContent = cont.ok + ' de ' + estaciones.length + ' estaciones cubiertas';
+  var partes = [];
+  if (cont.warn) partes.push(cont.warn + (cont.warn === 1 ? ' necesita apoyo' : ' necesitan apoyo'));
+  if (cont.bad) partes.push(cont.bad + (cont.bad === 1 ? ' sin operador' : ' sin operador'));
+  $('res-detalle').textContent = partes.length ? partes.join(', ') : 'Todo cubierto para este turno';
+  $('res-barra').innerHTML = estaciones.map(function (e) { return '<span class="is-' + estadoDe(e) + '" title="' + e.nombre + '"></span>'; }).join('');
+}
+
+function toast(msg) {
+  var t = $('toast'); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 2600);
+}
+
+function abrir(id) {
+  actual = estaciones.filter(function (e) { return e.id === id; })[0];
+  $('sheet-title').textContent = 'Asignar a ' + actual.nombre;
+  $('sheet-sub').textContent = 'Esta estación pide nivel ' + actual.req + '. Los mejores candidatos aparecen primero.';
+  var libres = Object.keys(personas).filter(function (k) {
+    return !estaciones.some(function (e) { return e.op === k; });
+  }).sort(function (a, b) { return nivelDe(b, id) - nivelDe(a, id); });
+
+  if (!libres.length) {
+    $('sheet-list').innerHTML = '<li class="cand">No hay operadores disponibles en este turno.</li>';
+  } else {
+    $('sheet-list').innerHTML = libres.map(function (k, i) {
+      var n = nivelDe(k, id), tag, clase;
+      if (n >= actual.req) { tag = 'Cumple el nivel'; clase = 'ok'; }
+      else if (n > 0) { tag = 'Nivel bajo: necesitaría apoyo'; clase = 'warn'; }
+      else { tag = 'Sin experiencia en esta estación'; clase = 'warn'; }
+      var rec = (i === 0 && n >= actual.req) ? '<span class="sg-badge sg-badge--ok">Recomendado</span>' : '';
+      return '<li class="cand"><span class="sg-avatar" aria-hidden="true">' + iniciales(personas[k].nombre) + '</span>' +
+        '<div class="cand-info"><div class="cand-nombre"><strong>' + personas[k].nombre + '</strong>' + rec + '</div>' +
+        '<span class="cand-tag ' + clase + '">' + tag + '</span></div>' + puntos(n) +
+        '<button class="sg-btn ' + (i === 0 && n >= actual.req ? 'sg-btn--accent' : 'sg-btn--ghost') + '" type="button" data-per="' + k + '">Asignar</button></li>';
+    }).join('');
+  }
+  $('sheet-quitar-wrap').hidden = !actual.op;
+  $('sheet').showModal();
+}
+
+$('grid').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button[data-est]'); if (b) abrir(b.getAttribute('data-est'));
+});
+$('sheet-list').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button[data-per]'); if (!b) return;
+  var k = b.getAttribute('data-per');
+  actual.op = k; pintar(); $('sheet').close();
+  toast(personas[k].nombre + ' asignada a ' + actual.nombre);
+});
+$('sheet-quitar').addEventListener('click', function () {
+  actual.op = null; pintar(); $('sheet').close(); toast('Se quitó el operador de ' + actual.nombre);
+});
+$('sheet-cerrar').addEventListener('click', function () { $('sheet').close(); });
+$('sheet').addEventListener('click', function (ev) { if (ev.target === $('sheet')) $('sheet').close(); });
+$('guardar').addEventListener('click', function () { toast('Asignación guardada (solo prueba, aún no se guarda en la base de datos)'); });
+
+document.querySelectorAll('[data-seg]').forEach(function (grupo) {
+  var botones = grupo.querySelectorAll('button');
+  botones[0].setAttribute('aria-pressed', 'true');
+  botones.forEach(function (b) {
+    b.addEventListener('click', function () {
+      botones.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+      b.setAttribute('aria-pressed', 'true');
+    });
+  });
+});
+
+var hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+$('fecha').textContent = hoy.charAt(0).toUpperCase() + hoy.slice(1);
+pintar();
+</script>
+</body></html>
