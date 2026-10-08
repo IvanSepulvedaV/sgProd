@@ -1,0 +1,5 @@
+Django==5.2.*
+psycopg[binary]==3.2.*
+django-environ==0.11.*
+qrcode[pil]==8.*
+Pillow==11.*

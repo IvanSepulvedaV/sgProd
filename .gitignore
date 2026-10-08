@@ -1,0 +1,19 @@
+# Entorno virtual
+.venv/
+
+# El .env de Django (raíz)
+.env
+
+# Python
+*.pyc
+__pycache__/
+*.sqlite3
+staticfiles/
+.pytest_cache/
+.ruff_cache/
+media/
+
+# Datos y secretos del contenedor de PostgreSQL
+postgresql/.env
+postgresql/db-data/
+postgresql/pgadmin-data/
